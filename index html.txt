@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Webカメラアプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            /* 画面全体にフィットするように設定 */
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ビデオ要素とスコアボードを配置するコンテナ */
+        #main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* ビデオ要素を正方形にする */
+        #video-container {
+            position: relative;
+            flex-grow: 1; /* 残りのスペースをすべて使う */
+            height: 100%;
+            aspect-ratio: 1 / 1; /* 正方形を維持 */
+            overflow: hidden;
+        }
+        
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out; /* 滑らかなズーム効果 */
+        }
+
+        /* スコアボードの共通スタイル */
+        .score-board {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-basis: 100px; /* 横幅を狭く固定 */
+            flex-shrink: 0;
+            height: 100%;
+            background-color: #2d3748;
+            padding: 0.5rem;
+            text-align: center;
+            user-select: none;
+        }
+        
+        /* 得点表示のスタイル */
+        .score-board h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-board p {
+            font-size: 6rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        /* 得点マーカーのコンテナ */
+        .score-markers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 0.25rem 0;
+            width: 100%;
+            padding: 0 0.25rem;
+            box-sizing: border-box;
+        }
+
+        /* 得点マーカーの囲い */
+        .score-box {
+            width: 100%;
+            aspect-ratio: 1 / 1; /* 正方形を維持 */
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 囲いをくっつけるための角丸の調整 */
+        .score-box:first-child {
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
+        .score-box:last-child {
+            border-bottom-left-radius: 0.25rem;
+            border-bottom-right-radius: 0.25rem;
+        }
+        .score-box:not(:first-child) {
+            border-top-width: 0;
+        }
+
+        /* 得点マーカーの● */
+        .score-dot {
+            font-size: 4rem; /* サイズを小さく */
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        /* プレイヤー1（左側）のスタイル */
+        #left-score-board h2, #left-score-board p, #left-score-board .score-dot {
+            color: #ec4899;
+        }
+        
+        #left-score-board .score-box {
+            border-color: #ec4899;
+        }
+        
+        /* プレイヤー2（右側）のスタイル */
+        #right-score-board h2, #right-score-board p, #right-score-board .score-dot {
+            color: #38bdf8;
+        }
+        
+        #right-score-board .score-box {
+            border-color: #38bdf8;
+        }
+
+        /* ボタンコンテナ */
+        .ui-buttons {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <!-- メインコンテナ -->
+    <div id="main-container">
+
+        <!-- 左側のスコアボード -->
+        <div id="left-score-board" class="score-board rounded-r-xl">
+            <h2>PLAYER 1</h2>
+            <div id="score-markers-1" class="score-markers-container">
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+            </div>
+            <p id="score-1">0</p>
+        </div>
+
+        <!-- カメラ画面のコンテナ -->
+        <div id="video-container">
+            <video id="videoElement" autoplay playsinline></video>
+            <div id="no-camera-message" class="absolute inset-0 flex items-center justify-center text-red-500 font-bold hidden bg-black bg-opacity-75 p-4 text-center">
+                カメラにアクセスできませんでした。<br>カメラの許可を確認してください。
+            </div>
+        </div>
+
+        <!-- 右側のスコアボード -->
+        <div id="right-score-board" class="score-board rounded-l-xl">
+            <h2>PLAYER 2</h2>
+            <div id="score-markers-2" class="score-markers-container">
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+                <div class="score-box"><span class="score-dot hidden">◎</span></div>
+            </div>
+            <p id="score-2">0</p>
+        </div>
+    </div>
+
+    <!-- ボタンコンテナ -->
+    <div class="ui-buttons">
+        <button id="startButton" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+            カメラを起動
+        </button>
+        <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+            一つ前に戻る
+        </button>
+        <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+            リセット
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const video = document.getElementById('videoElement');
+            const startButton = document.getElementById('startButton');
+            const noCameraMessage = document.getElementById('no-camera-message');
+            const resetButton = document.getElementById('resetButton');
+            const undoButton = document.getElementById('undoButton');
+            const score1 = document.getElementById('score-1');
+            const score2 = document.getElementById('score-2');
+            const player1Markers = document.querySelectorAll('#score-markers-1 .score-dot');
+            const player2Markers = document.querySelectorAll('#score-markers-2 .score-dot');
+            let stream = null;
+            let scoreHistory = [{ player1: 0, player2: 0 }]; // 得点の履歴を保存する配列
+
+            let player1Score = 0;
+            let player2Score = 0;
+
+            let initialPinchDistance = 0;
+            let currentScale = 1;
+
+            // カメラのストリームを開始する関数
+            const startCamera = async () => {
+                try {
+                    // カメラへのアクセスを要求
+                    const videoStream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment' // 背面カメラを優先
+                        }
+                    });
+                    stream = videoStream;
+                    video.srcObject = stream;
+                    noCameraMessage.classList.add('hidden');
+                    startButton.textContent = "カメラを停止";
+                    startButton.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'hover:from-blue-600', 'hover:to-purple-700', 'focus:ring-blue-500');
+                    startButton.classList.add('bg-gradient-to-r', 'from-red-500', 'to-orange-600', 'hover:from-red-600', 'hover:to-orange-700', 'focus:ring-red-500');
+
+                    // 動画の読み込みが完了したら、比率に合わせてサイズを調整
+                    video.onloadedmetadata = () => {
+                        adjustVideoSize();
+                    };
+                    window.addEventListener('resize', adjustVideoSize);
+
+                } catch (error) {
+                    console.error("カメラへのアクセスに失敗しました: ", error);
+                    noCameraMessage.classList.remove('hidden');
+                    startButton.textContent = "カメラを起動";
+                    startButton.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-orange-600', 'hover:from-red-600', 'hover:to-orange-700', 'focus:ring-red-500');
+                    startButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'hover:from-blue-600', 'hover:to-purple-700', 'focus:ring-blue-500');
+                }
+            };
+
+            // カメラのストリームを停止する関数
+            const stopCamera = () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                    stream = null;
+                    startButton.textContent = "カメラを起動";
+                    startButton.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-orange-600', 'hover:from-red-600', 'hover:to-orange-700', 'focus:ring-red-500');
+                    startButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'hover:from-blue-600', 'hover:to-purple-700', 'focus:ring-blue-500');
+                }
+            };
+
+            // ビデオのサイズを正方形に合わせる関数
+            const adjustVideoSize = () => {
+                const videoContainer = document.getElementById('video-container');
+                const size = Math.min(window.innerWidth, window.innerHeight) * 0.8; // 画面サイズに応じて調整
+                videoContainer.style.width = `${size}px`;
+                videoContainer.style.height = `${size}px`;
+            };
+
+            // スコアマーカーを更新する関数
+            const updateMarkers = (markers, score) => {
+                markers.forEach((marker, index) => {
+                    if (index < score) {
+                        marker.classList.remove('hidden');
+                    } else {
+                        marker.classList.add('hidden');
+                    }
+                });
+            };
+            
+            // スコアとUIを更新する関数
+            const updateUI = () => {
+                score1.textContent = player1Score;
+                score2.textContent = player2Score;
+                updateMarkers(player1Markers, player1Score);
+                updateMarkers(player2Markers, player2Score);
+            };
+
+            // ズームを適用する関数
+            const applyZoom = (scale) => {
+                video.style.transform = `scale(${scale})`;
+            };
+
+            // ピンチジェスチャーの開始
+            video.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialPinchDistance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                }
+            });
+
+            // ピンチジェスチャー中の処理
+            video.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const currentPinchDistance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                    
+                    const scaleFactor = currentPinchDistance / initialPinchDistance;
+                    let newScale = currentScale * scaleFactor;
+                    
+                    // ズームの最大・最小値を設定
+                    newScale = Math.max(1, Math.min(newScale, 3));
+                    applyZoom(newScale);
+                }
+            });
+
+            // ピンチジェスチャーの終了
+            video.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    currentScale = parseFloat(video.style.transform.replace('scale(', '').replace(')', ''));
+                }
+            });
+
+            // スタート/ストップボタンのクリックイベント
+            startButton.addEventListener('click', () => {
+                if (stream) {
+                    stopCamera();
+                } else {
+                    startCamera();
+                }
+            });
+
+            // Undoボタンのクリックイベント
+            undoButton.addEventListener('click', () => {
+                if (scoreHistory.length > 1) { // 最初の状態 (0,0) は保持
+                    scoreHistory.pop(); // 最新の履歴を削除
+                    const previousState = scoreHistory[scoreHistory.length - 1];
+                    player1Score = previousState.player1;
+                    player2Score = previousState.player2;
+                    updateUI();
+                }
+            });
+
+            // リセットボタンのクリックイベント
+            resetButton.addEventListener('click', () => {
+                player1Score = 0;
+                player2Score = 0;
+                scoreHistory = [{ player1: 0, player2: 0 }];
+                updateUI();
+            });
+            
+            // スコアクリックイベント
+            document.getElementById('left-score-board').addEventListener('click', () => {
+                player1Score++;
+                scoreHistory.push({ player1: player1Score, player2: player2Score });
+                updateUI();
+            });
+
+            document.getElementById('right-score-board').addEventListener('click', () => {
+                player2Score++;
+                scoreHistory.push({ player1: player1Score, player2: player2Score });
+                updateUI();
+            });
+        });
+    </script>
+</body>
+</html>
