@@ -135,17 +135,33 @@
             border-color: #38bdf8;
         }
         
-        /* ボタンの位置を左下と右下に変更するための新しいスタイル */
+        /* ボタンコンテナの位置とスタイルを再定義 */
         #buttons-container {
             position: absolute;
             bottom: 2rem;
-            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 1rem;
-            box-sizing: border-box;
+            gap: 1rem;
             z-index: 20;
+        }
+        #fullscreenButton {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 30; /* 他の要素の上に表示 */
+        }
+        #undoButton {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 30;
+        }
+        #resetButton {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 30;
         }
     </style>
 </head>
@@ -173,18 +189,18 @@
                 カメラにアクセスできませんでした。<br>カメラの許可を確認してください。
             </div>
 
-            <!-- ボタンコンテナをカメラ画面内に移動 -->
-            <div id="buttons-container">
-                <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
-                    🗖
-                </button>
-                <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
-                    ↶
-                </button>
-                <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
-                    ↺
-                </button>
-            </div>
+            <!-- 全画面表示ボタン -->
+            <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                ▣
+            </button>
+            <!-- Undoボタン -->
+            <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                ↶
+            </button>
+            <!-- リセットボタン -->
+            <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                ↺
+            </button>
         </div>
 
         <!-- 右側のスコアボード -->
@@ -386,4 +402,3 @@
     </script>
 </body>
 </html>
-
