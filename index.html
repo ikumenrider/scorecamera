@@ -244,7 +244,9 @@
                     // カメラへのアクセスを要求
                     const videoStream = await navigator.mediaDevices.getUserMedia({
                         video: {
-                            facingMode: 'environment' // 背面カメラを優先
+                            facingMode: 'environment', // 背面カメラを優先
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
                         }
                     });
                     stream = videoStream;
