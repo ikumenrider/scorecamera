@@ -175,6 +175,9 @@
 
             <!-- ボタンコンテナをカメラ画面内に移動 -->
             <div id="buttons-container">
+                <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                    🗖
+                </button>
                 <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                     ↶
                 </button>
@@ -203,6 +206,7 @@
             const noCameraMessage = document.getElementById('no-camera-message');
             const resetButton = document.getElementById('resetButton');
             const undoButton = document.getElementById('undoButton');
+            const fullscreenButton = document.getElementById('fullscreenButton');
             const score1 = document.getElementById('score-1');
             const score2 = document.getElementById('score-2');
             const player1Markers = document.querySelectorAll('#score-markers-1 .score-dot');
@@ -339,6 +343,11 @@
             window.addEventListener('touchend', handleEnd);
             window.addEventListener('mouseleave', handleEnd);
 
+            // フルスクリーンボタンのクリックイベント
+            fullscreenButton.addEventListener('click', () => {
+                document.body.requestFullscreen();
+            });
+
             // Undoボタンのクリックイベント
             undoButton.addEventListener('click', () => {
                 if (scoreHistory.length > 1) { // 最初の状態 (0,0) は保持
@@ -377,3 +386,4 @@
     </script>
 </body>
 </html>
+
