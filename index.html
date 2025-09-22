@@ -172,6 +172,7 @@
 
         <!-- 左側のスコアボード -->
         <div id="left-score-board" class="score-board rounded-r-xl">
+            <h2>PLAYER 1</h2>
             <div id="score-markers-1" class="score-markers-container">
                 <div class="score-box"><span class="score-dot hidden">◎</span></div>
                 <div class="score-box"><span class="score-dot hidden">◎</span></div>
@@ -189,21 +190,22 @@
             </div>
 
             <!-- 全画面表示ボタン -->
-            <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity50">
+            <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                 ▣
             </button>
             <!-- Undoボタン -->
-            <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity50">
+            <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                 ↶
             </button>
             <!-- リセットボタン -->
-            <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity50">
+            <button id="resetButton" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                 ↺
             </button>
         </div>
 
         <!-- 右側のスコアボード -->
         <div id="right-score-board" class="score-board rounded-l-xl">
+            <h2>PLAYER 2</h2>
             <div id="score-markers-2" class="score-markers-container">
                 <div class="score-box"><span class="score-dot hidden">◎</span></div>
                 <div class="score-box"><span class="score-dot hidden">◎</span></div>
@@ -390,7 +392,7 @@
 
             document.getElementById('right-score-board').addEventListener('click', () => {
                 player2Score++;
-                scoreHistory.push({ player1: player2Score, player2: player2Score });
+                scoreHistory.push({ player1: player1Score, player2: player2Score });
                 updateUI();
             });
 
