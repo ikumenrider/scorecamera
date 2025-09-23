@@ -361,7 +361,19 @@
 
             // フルスクリーンボタンのクリックイベント
             fullscreenButton.addEventListener('click', () => {
-                document.body.requestFullscreen();
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                    fullscreenButton.textContent = '▣';
+                } else {
+                    document.body.requestFullscreen();
+                    fullscreenButton.textContent = '□';
+                }
+            });
+            // フルスクリーン状態の変更を監視してボタンのテキストを更新
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) {
+                    fullscreenButton.textContent = '▣';
+                }
             });
 
             // Undoボタンのクリックイベント
