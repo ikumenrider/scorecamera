@@ -29,8 +29,9 @@
             width: 100%;
             height: 100%;
             position: relative;
+            transition: all 0.3s ease; /* アニメーションを維持 */
         }
-
+        
         /* ビデオ要素を正方形にする */
         #video-container {
             position: relative;
@@ -61,6 +62,7 @@
             padding: 0.5rem;
             text-align: center;
             user-select: none;
+            transition: all 0.3s ease; /* レイアウト変更時のアニメーション */
         }
         
         /* 得点表示のスタイル */
@@ -109,7 +111,7 @@
         .score-box:not(:first-child) {
             border-top-width: 0;
         }
-
+        
         /* 得点マーカーの● */
         .score-dot {
             font-size: 4rem; /* サイズを小さく */
@@ -134,6 +136,17 @@
         #right-score-board .score-box {
             border-color: #38bdf8;
         }
+
+        /* スコアボードを大きく表示する時のスタイル */
+        #main-container.wide-scoreboard .score-board {
+            flex-basis: 200px;
+        }
+        #main-container.wide-scoreboard .score-board p {
+            font-size: 10rem;
+        }
+        #main-container.wide-scoreboard .score-dot {
+            font-size: 7rem;
+        }
         
         /* ボタンコンテナの位置とスタイルを再定義 */
         #buttons-container {
@@ -150,6 +163,12 @@
             top: 1rem;
             right: 1rem;
             z-index: 30; /* 他の要素の上に表示 */
+        }
+        #swapLayoutButton {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 30;
         }
         #undoButton {
             position: absolute;
@@ -192,6 +211,10 @@
             <button id="fullscreenButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                 ▣
             </button>
+            <!-- レイアウト切り替えボタン -->
+            <button id="swapLayoutButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
+                ⇔
+            </button>
             <!-- Undoボタン -->
             <button id="undoButton" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full shadow-2xl transition duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-400 focus:ring-opacity-50">
                 ↶
@@ -221,6 +244,8 @@
             const resetButton = document.getElementById('resetButton');
             const undoButton = document.getElementById('undoButton');
             const fullscreenButton = document.getElementById('fullscreenButton');
+            const swapLayoutButton = document.getElementById('swapLayoutButton');
+            const mainContainer = document.getElementById('main-container');
             const score1 = document.getElementById('score-1');
             const score2 = document.getElementById('score-2');
             const player1Markers = document.querySelectorAll('#score-markers-1 .score-dot');
@@ -374,6 +399,11 @@
                 if (!document.fullscreenElement) {
                     fullscreenButton.textContent = '▣';
                 }
+            });
+
+            // レイアウト切り替えボタンのクリックイベント
+            swapLayoutButton.addEventListener('click', () => {
+                mainContainer.classList.toggle('wide-scoreboard');
             });
 
             // Undoボタンのクリックイベント
